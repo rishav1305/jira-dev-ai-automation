@@ -3,69 +3,96 @@ import argparse
 from src.jira_service import JiraService
 
 def main():
-    parser = argparse.ArgumentParser(description="JIRA Agent Script")
-    
-    # Existing commands
-    parser.add_argument("--fetch", action="store_true", help="Fetch open tasks")
-    parser.add_argument("--assign", type=str, help="Assign task ID to me")
-    parser.add_argument("--move", type=str, help="Move task ID to a new status") 
-    parser.add_argument("--status", type=str, default="In Progress", help="Target status for move command (default: 'In Progress')")
-    parser.add_argument("--verify", action="store_true", help="Verify connection credentials")
-    parser.add_argument("--details", type=str, help="Get details for a specific issue key")
-    
-    # New commands
-    parser.add_argument("--create-project", type=str, help="Create a new project. Format: 'KEY:Project Name'")
-    parser.add_argument("--create-issue", type=str, help="Create a new issue. Format: 'Type:Summary:Description'")
-    parser.add_argument("--comment", type=str, help="Add comment to issue. Format: 'KEY:Comment Text'")
+    parser = argparse.ArgumentParser(description="JIRA Agent CLI Tool")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Update commands
-    parser.add_argument("--update", type=str, help="Update an issue. Provide KEY.")
-    parser.add_argument("--summary", type=str, help="New summary for the issue (used with --update)")
-    parser.add_argument("--description", type=str, help="New description for the issue (used with --update)")
+    # Verify
+    parser_verify = subparsers.add_parser("verify", help="Verify connection credentials")
+
+    # Fetch
+    parser_fetch = subparsers.add_parser("fetch", help="Fetch open tasks ready for development")
+
+    # Details
+    parser_details = subparsers.add_parser("details", help="Get details for a specific issue")
+    parser_details.add_argument("key", type=str, help="Issue Key (e.g., JDAA-1)")
+
+    # Assign
+    parser_assign = subparsers.add_parser("assign", help="Assign an issue")
+    parser_assign.add_argument("key", type=str, help="Issue Key")
+    parser_assign.add_argument("--user", type=str, help="Account ID (Optional, defaults to self)")
+
+    # Move (Transition)
+    parser_move = subparsers.add_parser("move", help="Transition an issue to a new status")
+    parser_move.add_argument("key", type=str, help="Issue Key")
+    parser_move.add_argument("status", type=str, help="Target Status (e.g., 'In Progress')")
+
+    # Comment
+    parser_comment = subparsers.add_parser("comment", help="Add a comment to an issue")
+    parser_comment.add_argument("key", type=str, help="Issue Key")
+    parser_comment.add_argument("text", type=str, help="Comment text")
+
+    # Create Issue
+    parser_create = subparsers.add_parser("create", help="Create a new issue")
+    parser_create.add_argument("summary", type=str, help="Issue Summary")
+    parser_create.add_argument("description", type=str, help="Issue Description")
+    parser_create.add_argument("--type", type=str, default="Task", help="Issue Type (default: Task)")
+    parser_create.add_argument("--project", type=str, help="Project Key (Optional)")
+
+    # Create Project
+    parser_project = subparsers.add_parser("create-project", help="Create a new project")
+    parser_project.add_argument("key", type=str, help="Project Key")
+    parser_project.add_argument("name", type=str, help="Project Name")
+
+    # Update
+    parser_update = subparsers.add_parser("update", help="Update an issue")
+    parser_update.add_argument("key", type=str, help="Issue Key")
+    parser_update.add_argument("--summary", type=str, help="New Summary")
+    parser_update.add_argument("--description", type=str, help="New Description")
+
+    # Promote (Composite Action)
+    parser_promote = subparsers.add_parser("promote", help="Promote an issue to a status and comment")
+    parser_promote.add_argument("key", type=str, help="Issue Key")
+    parser_promote.add_argument("status", type=str, help="Target Status")
+    parser_promote.add_argument("--comment", type=str, required=True, help="Comment text")
 
     args = parser.parse_args()
-    
-    try:
-        service = JiraService()
-    except ValueError as e:
-        print(f"Configuration Error: {e}")
+
+    if not args.command:
+        parser.print_help()
         sys.exit(1)
 
-    if args.verify:
+    try:
+        service = JiraService()
+    except Exception as e:
+        print(f"Error initializing JiraService: {e}")
+        sys.exit(1)
+
+    if args.command == "verify":
         service.verify_connection()
-    elif args.fetch:
+    elif args.command == "fetch":
         service.get_open_tasks()
-    elif args.details:
-        service.get_issue_details(args.details)
-    elif args.assign:
-        service.assign_task(args.assign)
-    elif args.move:
-        service.transition_issue(args.move, args.status)
-    elif args.create_project:
-        parts = args.create_project.split(":", 1)
-        if len(parts) == 2:
-            service.create_project(parts[0], parts[1])
-        else:
-            print("Invalid format for --create-project. Use 'KEY:Project Name'")
-    elif args.create_issue:
-        parts = args.create_issue.split(":", 2)
-        if len(parts) == 3:
-            service.create_issue(parts[1], parts[2], parts[0])
-        else:
-            print("Invalid format for --create-issue. Use 'Type:Summary:Description'")
-    elif args.comment:
-        parts = args.comment.split(":", 1)
-        if len(parts) == 2:
-            service.add_comment(parts[0], parts[1])
-        else:
-            print("Invalid format for --comment. Use 'KEY:Comment Text'")
-    elif args.update:
+    elif args.command == "details":
+        service.get_issue_details(args.key)
+    elif args.command == "assign":
+        service.assign_task(args.key, args.user)
+    elif args.command == "move":
+        service.transition_issue(args.key, args.status)
+    elif args.command == "comment":
+        service.add_comment(args.key, args.text)
+    elif args.command == "create":
+        service.create_issue(args.summary, args.description, args.type, args.project)
+    elif args.command == "create-project":
+        service.create_project(args.key, args.name)
+    elif args.command == "update":
         if not args.summary and not args.description:
-            print("Error: Please provide --summary or --description with --update.")
+            print("Error: Provide --summary or --description to update.")
         else:
-            service.update_issue(args.update, args.summary, args.description)
-    else:
-        parser.print_help()
+            service.update_issue(args.key, args.summary, args.description)
+    elif args.command == "promote":
+        print(f"Promoting {args.key} to '{args.status}'...")
+        if service.add_comment(args.key, args.comment):
+            service.transition_issue(args.key, args.status)
+        service.get_issue_details(args.key)
 
 if __name__ == "__main__":
     main()
