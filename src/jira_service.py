@@ -158,10 +158,66 @@ class JiraService:
         if data is not None:
             fields = data["fields"]
             print(f"--- Issue: {issue_key} ---")
-            print(f"Summary: {fields['summary']}")
-            print(f"Status: {fields['status']['name']}")
+            print(f"Summary: {fields.get('summary')}")
+            print(f"Status: {fields.get('status', {}).get('name')}")
+            
+            # Enhanced details
+            assignee = fields.get('assignee')
+            assignee_name = assignee.get('displayName') if assignee else "Unassigned"
+            print(f"Assignee: {assignee_name}")
+            
+            priority = fields.get('priority')
+            priority_name = priority.get('name') if priority else "None"
+            print(f"Priority: {priority_name}")
+            
+            # Description (handling ADF potentially complex, just simplistic text extraction if possible)
+            # Or just indicating it's there. JIRA Cloud descriptions are ADF (JSON).
+            # For simplicity, we won't parse full ADF to text here, just notify.
+            description = fields.get('description')
+            if description:
+                print("Description: [Content Available in JIRA]")
+                # Attempt simple text extraction if it's a simple doc
+                try:
+                    # Very basic ADF text extraction
+                    texts = []
+                    for content in description.get('content', []):
+                        if content.get('type') == 'paragraph':
+                             for node in content.get('content', []):
+                                 if node.get('type') == 'text':
+                                     texts.append(node.get('text', ''))
+                    if texts:
+                        print(f"Description Preview: {' '.join(texts)}")
+                except Exception:
+                    pass
+            else:
+                print("Description: None")
+
             print(f"Link: {self.client.jira_url}/browse/{issue_key}")
             return True
+        return False
+
+    def update_issue(self, issue_key, summary=None, description=None):
+        """Update an issue's summary or description."""
+        update_payload = {"fields": {}}
+        
+        if summary:
+            update_payload["fields"]["summary"] = summary
+            
+        if description:
+            description_adf = {
+                "type": "doc",
+                "version": 1,
+                "content": [{"type": "paragraph", "content": [{"type": "text", "text": description}]}]
+            }
+            update_payload["fields"]["description"] = description_adf
+            
+        if not update_payload["fields"]:
+            print("No changes provided for update.")
+            return False
+            
+        if self.client.put(f"/rest/api/3/issue/{issue_key}", update_payload) is not None:
+             print(f"Successfully updated {issue_key}.")
+             return True
         return False
 
     def create_status(self, name, category_id=2):

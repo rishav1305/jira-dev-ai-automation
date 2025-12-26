@@ -18,6 +18,11 @@ def main():
     parser.add_argument("--create-issue", type=str, help="Create a new issue. Format: 'Type:Summary:Description'")
     parser.add_argument("--comment", type=str, help="Add comment to issue. Format: 'KEY:Comment Text'")
 
+    # Update commands
+    parser.add_argument("--update", type=str, help="Update an issue. Provide KEY.")
+    parser.add_argument("--summary", type=str, help="New summary for the issue (used with --update)")
+    parser.add_argument("--description", type=str, help="New description for the issue (used with --update)")
+
     args = parser.parse_args()
     
     try:
@@ -54,6 +59,11 @@ def main():
             service.add_comment(parts[0], parts[1])
         else:
             print("Invalid format for --comment. Use 'KEY:Comment Text'")
+    elif args.update:
+        if not args.summary and not args.description:
+            print("Error: Please provide --summary or --description with --update.")
+        else:
+            service.update_issue(args.update, args.summary, args.description)
     else:
         parser.print_help()
 

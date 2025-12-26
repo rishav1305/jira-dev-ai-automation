@@ -44,5 +44,28 @@ class TestJiraService(unittest.TestCase):
         result = self.service.transition_issue("TEST-1", "In Progress")
         self.assertTrue(result)
 
+    def test_update_issue_success(self):
+        self.mock_client.put.return_value = {} # Success returns empty dict or True
+        result = self.service.update_issue("TEST-1", summary="New Summary", description="New Desc")
+        self.assertTrue(result)
+        self.mock_client.put.assert_called_once()
+        
+    def test_get_issue_details_enhanced(self):
+        self.mock_client.get.return_value = {
+            "fields": {
+                "summary": "Summary",
+                "status": {"name": "In Progress"},
+                "assignee": {"displayName": "Developer"},
+                "priority": {"name": "High"},
+                "description": {
+                    "content": [
+                        {"type": "paragraph", "content": [{"type": "text", "text": "Details"}]}
+                    ]
+                }
+            }
+        }
+        result = self.service.get_issue_details("TEST-1")
+        self.assertTrue(result)
+
 if __name__ == '__main__':
     unittest.main()

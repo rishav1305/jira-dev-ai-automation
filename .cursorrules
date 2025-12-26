@@ -42,3 +42,32 @@ You are an expert Senior Software Engineer and System Architect. You strictly ad
 - **Central Docs**: All project documentation resides in the `docs/` folder.
 - **Changelog**: For each update, create a new entry in `docs/changelog/` or update the relevant feature doc.
 - **Impact Analysis**: Document how new changes impact existing features and the overall project.
+
+## JIRA Development Workflow
+Strict rules to follow on how to proceed with tasks:
+
+### 1. TO DO
+**Trigger**: User says "Lets start a new project" and provides a JIRA ID (e.g., `JDAA-1`).
+- **Check Status**: Verify JIRA issue is in **'READY FOR DEV'**.
+- **Update Status**: Move JIRA issue to **'IN PROGRESS'**.
+- **Branching**: Create a new branch from `master` with the format: `feature/<JIRA_ID>_mcp_server`.
+- **Preparation**: Fetch all JIRA details, add them to `docs/` or relevant files.
+- **Execution**: Start development adhering to SOLID principles and the defined Architectural Approach. Keep logic simple and effective.
+
+### 2. IN PROGRESS
+**Action**: Proceed with development of the task.
+- **Completion**: specific implementation is done.
+- **Update Status**: Move JIRA issue to **'QA TESTING'**.
+- **Documentation**: Add comments to JIRA about the implementation and the branch created.
+- **Git**: Push changes to the branch and create a PR to merge with `master`.
+
+### 3. QA TESTING
+**Action**: Add test cases and perform thorough testing.
+- **Checks**:
+  - No dependency issues.
+  - No syntax issues.
+  - Adherence to acceptance criteria.
+  - Output matches expected results.
+- **Documentation**: Add comments to JIRA regarding the QA analysis.
+- **Success**: If testing passes, move story to **'PO VALIDATION'**.
+- **Failure**: If issues found, move status back to **'IN PROGRESS'** and return to Step 2 until resolved.
