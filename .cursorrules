@@ -57,9 +57,9 @@ Strict rules to follow on how to proceed with tasks:
 ### 2. IN PROGRESS
 **Action**: Proceed with development of the task.
 - **Completion**: specific implementation is done.
-- **Update Status**: Move JIRA issue to **'QA TESTING'**.
 - **Documentation**: Add comments to JIRA about the implementation and the branch created.
 - **Git**: Push changes to the branch and create a PR to merge with `master`.
+- **Update Status**: Move JIRA issue to **'QA TESTING'**.
 
 ### 3. QA TESTING
 **Action**: Add test cases and perform thorough testing.
