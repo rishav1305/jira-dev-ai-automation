@@ -104,15 +104,16 @@ if __name__ == "__main__":
     
     if args.transport == "sse":
         print(f"Starting SSE server on {args.host}:{args.port}")
-        # FastMCP settings are immutable after init usually, but let's see if we can pass them to run or re-init.
-        # FastMCP.run(transport='sse') uses internal settings.
-        # We need to configure host/port on the instance or pass them.
-        # Looking at source, FastMCP.__init__ takes host/port.
-        # So we should probably re-initialize or modify settings if possible.
-        # But 'mcp' global is already created.
-        # Let's check if we can modify settings.
+        # Configure host/port on the instance
         mcp.settings.host = args.host
         mcp.settings.port = args.port
+        
+        # If binding to non-local host, we must adjust transport security
+        # properly or disable it, otherwise remote requests will be blocked (403/421).
+        if args.host not in ("127.0.0.1", "localhost", "::1"):
+            print("Binding to non-local host, disabling DNS rebinding protection.")
+            mcp.settings.transport_security = None
+            
         mcp.run(transport="sse")
     else:
         mcp.run(transport="stdio")
