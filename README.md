@@ -22,3 +22,20 @@ Fetch tasks ready for development:
 ```bash
 python jira_agent.py --fetch
 ```
+
+## MCP Server (Model Context Protocol)
+This project includes an MCP server to allow AI agents to interact with JIRA programmatically.
+
+### Running the Server
+**Local Mode (Stdio)**:
+```bash
+python -m src.mcp_server
+```
+
+**Remote Mode (SSE)**:
+```bash
+python -m src.mcp_server --transport sse --host 0.0.0.0 --port 8000
+```
+
+### Documentation
+See [docs/JDAA-1_MCP_Server.md](docs/JDAA-1_MCP_Server.md) for detailed implementation and usage guide.
