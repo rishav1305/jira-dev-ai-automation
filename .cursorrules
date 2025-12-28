@@ -43,6 +43,36 @@ You are an expert Senior Software Engineer and System Architect. You strictly ad
 - **Changelog**: For each update, create a new entry in `docs/changelog/` or update the relevant feature doc.
 - **Impact Analysis**: Document how new changes impact existing features and the overall project.
 
+## Mandatory Task Checklist
+When starting a task (JIRA ID), you MUST copy this checklist into your `task.md`:
+
+- [ ] **Pre Implementation**
+  - [ ] Validate the JIRA issue is in 'READY FOR DEV'
+  - [ ] Create a new branch from `master` with the format: `feature/<JIRA_ID>`
+  - [ ] Fetch all JIRA details, add them to `docs/` or relevant files.
+  - [ ] Update the JIRA issue to 'IN PROGRESS'
+- [ ] **Implementation**
+  - [ ] Create/Update source code - adhering to SOLID principles and the defined Architectural Approach
+  - [ ] Add Unit Tests
+  - [ ] Verify Local Execution
+- [ ] **Documentation**
+  - [ ] Update `README.md` if applicable
+  - [ ] Add comments to JIRA about the implementation and the branch created
+  - [ ] Create/Update `docs/` (Technical implementation details)
+  - [ ] Create Changelog Entry in `docs/changelog/`
+- [ ] **Test Suite**
+  - [ ] No dependency issues.
+  - [ ] No syntax issues.
+  - [ ] Adherence to Acceptance Criteria in the JIRA.
+  - [ ] Output matches expected results.
+  - [ ] Add comments to JIRA about the test results
+- [ ] **Delivery**
+  - [ ] Run `pip freeze > requirements.txt` (if deps changed)
+  - [ ] Push to `feature/<ID>` branch
+  - [ ] Create Pull Request
+  - [ ] Post QA Report to JIRA
+  - [ ] Update JIRA Status to 'PO VALIDATION'
+
 ## JIRA Development Workflow
 Strict rules to follow on how to proceed with tasks:
 
