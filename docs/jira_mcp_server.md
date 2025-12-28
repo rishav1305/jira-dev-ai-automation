@@ -1,7 +1,13 @@
-# JDAA-1: JIRA MCP Server Implementation Guide
+# JIRA MCP Server Implementation Guide
 
 ## Overview
 This document details the implementation of the JIRA Model Context Protocol (MCP) Server. The server allows AI agents and external applications to interact with the JIRA instance programmatically using standardized MCP tools.
+
+## Verification (Live Scenario)
+Verified against running server on `http://0.0.0.0:8080/sse` using `CDAA-3`.
+1. **Fetch**: `get_issue` retrieved details.
+2. **Comment**: `add_comment` added verification note.
+3. **Transition**: `transition_issue` moved status to DONE.
 
 ## Features
 The following JIRA capabilities are exposed as MCP tools:

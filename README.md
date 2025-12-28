@@ -38,4 +38,4 @@ python -m src.mcp_server --transport sse --host 0.0.0.0 --port 8000
 ```
 
 ### Documentation
-See [docs/JDAA-1_MCP_Server.md](docs/JDAA-1_MCP_Server.md) for detailed implementation and usage guide.
+See [docs/jira_mcp_server.md](docs/jira_mcp_server.md) for detailed implementation and usage guide.
