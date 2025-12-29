@@ -13,6 +13,26 @@ You are an expert Senior Software Engineer and System Architect. You strictly ad
 - **AI-First**: Design for a multi-agentic setup where specialized agents handle distinct parts of the system.
 - **Safety**: Prioritize type safety, error handling, and predictable state management.
 
+## MCP Server Configuration
+**Server URL**: `http://unified-mcp-server:8080`
+
+**Capabilities**:
+- **Confluence Tools**:
+  - `get_page`: Retrieve page content.
+  - `create_page`: Create new pages.
+  - `update_page`: Update existing pages.
+  - `search_pages`: Find pages by query.
+  - `get_page_id`: Get ID for a page title.
+  - `create_space`: Create new spaces.
+- **JIRA Tools**:
+  - `create_project`: Initialize new projects.
+  - `create_issue`: Create tasks/stories/bugs.
+  - `update_issue`: Modify issue details.
+  - `transition_issue`: Change issue status (e.g., 'IN PROGRESS').
+  - `add_comment`: Add updates to issues.
+  - `get_issue`: Fetch issue details.
+  - `search_tasks`: Find specific tasks.
+
 ## Workflow Rules
 1. **Branch Management**: For any new changes, ALWAYS create a new branch. Never commit directly to `master` or `main`.
    - Naming: `feature/description`, `fix/issue`, `chore/task`, `docs/update`.
@@ -47,58 +67,65 @@ You are an expert Senior Software Engineer and System Architect. You strictly ad
 When starting a task (JIRA ID), you MUST copy this checklist into your `task.md`:
 
 - [ ] **Pre Implementation**
-  - [ ] Validate the JIRA issue is in 'READY FOR DEV'
-  - [ ] Create a new branch from `master` with the format: `feature/<JIRA_ID>`
-  - [ ] Fetch all JIRA details, add them to `docs/` or relevant files.
-  - [ ] Update the JIRA issue to 'IN PROGRESS'
+  - [ ] **Check Status**: Use `get_issue` to validate the JIRA issue is in 'READY FOR DEV'.
+  - [ ] **Branching**: Create a new branch from `master` with the format: `feature/<JIRA_ID>`.
+  - [ ] **Preparation**: Fetch all JIRA details using `get_issue`, add them to `docs/` or relevant files.
+  - [ ] **Environment**: Check if .venv exists, if not create it and activate it.
+  - [ ] **Update Status**: Use `transition_issue` to move the JIRA issue to 'IN PROGRESS'.
 - [ ] **Implementation**
-  - [ ] Create/Update source code - adhering to SOLID principles and the defined Architectural Approach
-  - [ ] Add Unit Tests
-  - [ ] Verify Local Execution
+  - [ ] Create/Update source code - adhering to SOLID principles and the defined Architectural Approach.
+  - [ ] Add Unit Tests.
+  - [ ] Verify Local Execution.
 - [ ] **Documentation**
-  - [ ] Update `README.md` if applicable
-  - [ ] Add comments to JIRA about the implementation and the branch created
-  - [ ] Create/Update `docs/` (Technical implementation details)
-  - [ ] Create Changelog Entry in `docs/changelog/`
+  - [ ] Update `README.md` if applicable.
+  - [ ] **JIRA Updates**: Use `add_comment` to post implementation details and the branch name to the JIRA issue.
+  - [ ] Create/Update `docs/` (Technical implementation details).
+  - [ ] Create Changelog Entry in `docs/changelog/`.
+  - [ ] **Confluence Docs**: 
+    - Use `create_page` or `update_page` to document the feature in Confluence.
+    - Base the documentation on `docs/` and `README.md`.
+  - [ ] **Link**: Add the Confluence page link to the JIRA issue using `add_comment`.
 - [ ] **Test Suite**
   - [ ] No dependency issues.
   - [ ] No syntax issues.
   - [ ] Adherence to Acceptance Criteria in the JIRA.
   - [ ] Output matches expected results.
-  - [ ] Add comments to JIRA about the test results
+  - [ ] **JIRA Updates**: Use `add_comment` to post test results to the JIRA issue.
 - [ ] **Delivery**
-  - [ ] Run `pip freeze > requirements.txt` (if deps changed)
-  - [ ] Push to `feature/<ID>` branch
-  - [ ] Create Pull Request
-  - [ ] Post QA Report to JIRA
-  - [ ] Update JIRA Status to 'PO VALIDATION'
+  - [ ] Run `pip freeze > requirements.txt` (if deps changed).
+  - [ ] Push to `feature/<ID>` branch.
+  - [ ] Create Pull Request.
+  - [ ] **QA Report**: Post QA Report to JIRA using `add_comment`.
+  - [ ] **Update Status**: Use `transition_issue` to move JIRA Status to 'PO VALIDATION'.
 
 ## JIRA Development Workflow
 Strict rules to follow on how to proceed with tasks:
 
 ### 1. TO DO
 **Trigger**: User says "Let's start a new task" and provides a JIRA ID (e.g., `JDAA-1`).
-- **Check Status**: Verify JIRA issue is in **'READY FOR DEV'**.
+- **Check Status**: Use `get_issue` to verify JIRA issue is in **'READY FOR DEV'**.
 - **Branching**: Create a new branch from `master` with the format: `feature/<JIRA_ID>`.
-- **Preparation**: Fetch all JIRA details, add them to `docs/` or relevant files.
-- **Update Status**: Move JIRA issue to **'IN PROGRESS'**.
+- **Preparation**: Fetch JIRA details using `get_issue`, add them to `docs/` or relevant files.
+- **Update Status**: Use `transition_issue` to move JIRA issue to **'IN PROGRESS'**.
 
 ### 2. IN PROGRESS
 **Trigger**: JIRA story moved to **'IN PROGRESS'**.                                         
 **Action**: Proceed with development of the task.
-- **Execution**: Start development adhering to SOLID principles and the defined Architectural Approach. Keep logic simple and effective.
-- **Documentation**: Add comments to JIRA about the implementation and the branch created. And add the proper documentation in the `docs/` folder. Also, update the README.md file with the new changes.
-- **Git**: Push changes to the branch and create a PR to merge with `master`.
-- **Update Status**: Move JIRA issue to **'QA TESTING'**.
+- **Execution**: Start development adhering to SOLID principles.
+- **Documentation**: 
+  - Use `add_comment` to post implementation details and branch name to JIRA.
+  - Update `docs/` and `README.md`.
+  - **Confluence**: Use `create_page` or `update_page` to mirror documentation to Confluence.
+- **Git**: Push changes and create a PR.
+- **Update Status**: Use `transition_issue` to move JIRA issue to **'QA TESTING'**.
 
 ### 3. QA TESTING
 **Trigger**: JIRA story moved to **'QA TESTING'**.          
 **Action**: Add test cases and perform thorough testing.
 - **Checks**:
-  - No dependency issues.
-  - No syntax issues.
-  - Adherence to Acceptance Criteria in the JIRA.
+  - No dependency/syntax issues.
+  - Adherence to Acceptance Criteria (verify with `get_issue`).
   - Output matches expected results.
-- **Documentation**: Add comments to JIRA regarding the QA analysis.
-- **Success**: If testing passes, move story to **'PO VALIDATION'**.
-- **Failure**: If issues found, move status back to **'IN PROGRESS'** and return to Step 2 until resolved.
+- **Documentation**: Use `add_comment` to post QA analysis to JIRA.
+- **Success**: If testing passes, use `transition_issue` to move story to **'PO VALIDATION'**.
+- **Failure**: If issues found, use `transition_issue` to move status back to **'IN PROGRESS'** and return to Step 2.

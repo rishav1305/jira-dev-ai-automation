@@ -1,6 +1,8 @@
 from mcp.server.fastmcp import FastMCP
 from .jira_service import JiraService
 import json
+import argparse
+import os
 
 # Initialize the MCP Server
 mcp = FastMCP("Jira Automation")
@@ -90,9 +92,6 @@ def search_tasks(jql: str) -> str:
         issues = data.get("issues", [])
         return json.dumps([{"key": i["key"], "summary": i["fields"]["summary"]} for i in issues], indent=2)
     return "No issues found or error."
-
-import argparse
-import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Jira MCP Server")
